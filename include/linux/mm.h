@@ -3199,7 +3199,21 @@ unsigned long __absent_pages_in_range(int nid, unsigned long start_pfn,
 						unsigned long end_pfn);
 extern unsigned long absent_pages_in_range(unsigned long start_pfn,
 						unsigned long end_pfn);
+
+/*
+ * Allow archs to opt-in to keeping get_pfn_range_for_nid() available
+ * after boot.
+ */
+#ifdef CONFIG_ARCH_KEEP_MEMBLOCK
+#define __init_or_memblock
+#else
+#define __init_or_memblock __init
+#endif
+
 extern void get_pfn_range_for_nid(unsigned int nid,
+			unsigned long *start_pfn, unsigned long *end_pfn);
+
+extern void get_reserved_pfn_range_for_nid(unsigned int nid,
 			unsigned long *start_pfn, unsigned long *end_pfn);
 
 #ifndef CONFIG_NUMA

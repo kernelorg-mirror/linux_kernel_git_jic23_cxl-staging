@@ -1682,7 +1682,7 @@ static inline void alloc_node_mem_map(struct pglist_data *pgdat) { }
  * provided by memblock_set_node(). If called for a node
  * with no available memory, the start and end PFNs will be 0.
  */
-void __init get_pfn_range_for_nid(unsigned int nid,
+void __init_or_memblock get_pfn_range_for_nid(unsigned int nid,
 			unsigned long *start_pfn, unsigned long *end_pfn)
 {
 	unsigned long this_start_pfn, this_end_pfn;
@@ -1692,6 +1692,33 @@ void __init get_pfn_range_for_nid(unsigned int nid,
 	*end_pfn = 0;
 
 	for_each_mem_pfn_range(i, nid, &this_start_pfn, &this_end_pfn, NULL) {
+		*start_pfn = min(*start_pfn, this_start_pfn);
+		*end_pfn = max(*end_pfn, this_end_pfn);
+	}
+
+	if (*start_pfn == -1UL)
+		*start_pfn = 0;
+}
+
+/**
+ * get_reserved_pfn_range_for_nid - Return the start and end page frames for a node
+ * @nid: The nid to return the range for. If MAX_NUMNODES, the min and max PFN are returned.
+ * @start_pfn: Passed by reference. On return, it will have the node start_pfn.
+ * @end_pfn: Passed by reference. On return, it will have the node end_pfn.
+ *
+ * Mostly identical to get_pfn_range_for_nid() except it operates on
+ * reserved ranges rather than online memory.
+ */
+void __init_or_memblock get_reserved_pfn_range_for_nid(unsigned int nid,
+			unsigned long *start_pfn, unsigned long *end_pfn)
+{
+	unsigned long this_start_pfn, this_end_pfn;
+	int i;
+
+	*start_pfn = -1UL;
+	*end_pfn = 0;
+
+	for_each_reserved_pfn_range(i, nid, &this_start_pfn, &this_end_pfn, NULL) {
 		*start_pfn = min(*start_pfn, this_start_pfn);
 		*end_pfn = max(*end_pfn, this_end_pfn);
 	}

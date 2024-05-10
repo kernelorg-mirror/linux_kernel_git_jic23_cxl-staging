@@ -1289,11 +1289,11 @@ void __init_memblock __next_mem_range_rev(u64 *idx, int nid,
 /*
  * Common iterator interface used to define for_each_mem_pfn_range().
  */
-void __init_memblock __next_mem_pfn_range(int *idx, int nid,
+static void __init_memblock __next_memblock_pfn_range(int *idx, int nid,
 				unsigned long *out_start_pfn,
-				unsigned long *out_end_pfn, int *out_nid)
+				unsigned long *out_end_pfn, int *out_nid,
+				struct memblock_type *type)
 {
-	struct memblock_type *type = &memblock.memory;
 	struct memblock_region *r;
 	int r_nid;
 
@@ -1317,6 +1317,22 @@ void __init_memblock __next_mem_pfn_range(int *idx, int nid,
 		*out_end_pfn = PFN_DOWN(r->base + r->size);
 	if (out_nid)
 		*out_nid = r_nid;
+}
+
+void __init_memblock __next_mem_pfn_range(int *idx, int nid,
+				unsigned long *out_start_pfn,
+				unsigned long *out_end_pfn, int *out_nid)
+{
+	__next_memblock_pfn_range(idx, nid, out_start_pfn, out_end_pfn, out_nid,
+				  &memblock.memory);
+}
+
+void __init_memblock __next_reserved_pfn_range(int *idx, int nid,
+				unsigned long *out_start_pfn,
+				unsigned long *out_end_pfn, int *out_nid)
+{
+	__next_memblock_pfn_range(idx, nid, out_start_pfn, out_end_pfn, out_nid,
+				  &memblock.reserved);
 }
 
 /**

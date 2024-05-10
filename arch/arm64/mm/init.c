@@ -72,6 +72,28 @@ int memory_add_physaddr_to_nid(u64 start)
 }
 EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
 
+int phys_to_target_node(phys_addr_t start)
+{
+	unsigned long start_pfn, end_pfn, pfn = PHYS_PFN(start);
+	int nid = __memory_add_physaddr_to_nid(start);
+
+	if (nid != NUMA_NO_NODE)
+		return nid;
+
+	/*
+	 * Search reserved memory ranges since the memory address does
+	 * not appear to be online
+	 */
+	for_each_node_state(nid, N_POSSIBLE) {
+		get_reserved_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
+		if (pfn >= start_pfn && pfn <= end_pfn)
+			return nid;
+	}
+
+	return NUMA_NO_NODE;
+}
+EXPORT_SYMBOL(phys_to_target_node);
+
 /*
  * We need to be able to catch inadvertent references to memstart_addr
  * that occur (potentially in generic code) before arm64_memblock_init()

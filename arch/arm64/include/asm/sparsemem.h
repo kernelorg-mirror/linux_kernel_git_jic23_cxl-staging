@@ -27,7 +27,11 @@
 #endif /* CONFIG_ARM64_64K_PAGES */
 
 #ifndef __ASSEMBLY__
+
 extern int memory_add_physaddr_to_nid(u64 addr);
 #define memory_add_physaddr_to_nid memory_add_physaddr_to_nid
+extern int phys_to_target_node(phys_addr_t start);
+#define phys_to_target_node phys_to_target_node
+
 #endif /* __ASSEMBLY__ */
 #endif
