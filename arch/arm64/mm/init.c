@@ -47,6 +47,32 @@
 #include <asm/alternative.h>
 #include <asm/xen/swiotlb-xen.h>
 
+/*
+ * Scan existing memblocks and if this region overlaps with a region with
+ * a nid set, add a reserved memblock.
+ */
+int __init numa_fill_memblks(u64 start, u64 end)
+{
+	struct memblock_region *region;
+
+	for_each_mem_region(region) {
+		int nid = memblock_get_region_node(region);
+
+		if (nid == NUMA_NO_NODE)
+			continue;
+		if (!(end < region->base || start >= region->base + region->size)) {
+			memblock_add_reserved_node(start, end - start, nid,
+						   MEMBLOCK_RSRV_NOINIT);
+			return 0;
+		}
+	}
+
+	memblock_add_reserved_node(start, end - start, NUMA_NO_NODE,
+				   MEMBLOCK_RSRV_NOINIT);
+
+	return NUMA_NO_MEMBLK;
+}
+
 static int __memory_add_physaddr_to_nid(u64 addr)
 {
 	unsigned long start_pfn, end_pfn, pfn = PHYS_PFN(addr);
