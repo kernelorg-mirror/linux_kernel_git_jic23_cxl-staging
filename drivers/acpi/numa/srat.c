@@ -329,6 +329,11 @@ static int __init acpi_parse_cfmws(union acpi_subtable_headers *header,
 	int node;
 
 	cfmws = (struct acpi_cedt_cfmws *)header;
+
+	/* At least one firmware reports disabled entries with size 0 */
+	if (cfmws->window_size == 0)
+		return 0;
+
 	start = cfmws->base_hpa;
 	end = cfmws->base_hpa + cfmws->window_size;
 
