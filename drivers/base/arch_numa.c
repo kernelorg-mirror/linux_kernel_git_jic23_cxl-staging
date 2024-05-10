@@ -363,6 +363,11 @@ static int __init numa_register_nodes(void)
 		unsigned long start_pfn, end_pfn;
 
 		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
+		if (start_pfn >= end_pfn &&
+		    !node_state(nid, N_CPU) &&
+		    !node_state(nid, N_GENERIC_INITIATOR))
+			continue;
+
 		setup_node_data(nid, start_pfn, end_pfn);
 		node_set_online(nid);
 	}
