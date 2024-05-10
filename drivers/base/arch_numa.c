@@ -208,6 +208,13 @@ int __init numa_add_memblk(int nid, u64 start, u64 end)
 			start, (end - 1), nid);
 		return ret;
 	}
+	/* Also set reserved nodes nid */
+	ret = memblock_set_node(start, (end - start), &memblock.reserved, nid);
+	if (ret < 0) {
+		pr_err("memblock [0x%llx - 0x%llx] failed to add on node %d\n",
+			start, (end - 1), nid);
+		return ret;
+	}
 
 	node_set(nid, numa_nodes_parsed);
 	return ret;
