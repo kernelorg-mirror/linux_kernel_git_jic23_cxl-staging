@@ -47,6 +47,31 @@
 #include <asm/alternative.h>
 #include <asm/xen/swiotlb-xen.h>
 
+static int __memory_add_physaddr_to_nid(u64 addr)
+{
+	unsigned long start_pfn, end_pfn, pfn = PHYS_PFN(addr);
+	int nid;
+
+	for_each_online_node(nid) {
+		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
+		if (pfn >= start_pfn && pfn <= end_pfn)
+			return nid;
+	}
+	return NUMA_NO_NODE;
+}
+
+int memory_add_physaddr_to_nid(u64 start)
+{
+	int nid = __memory_add_physaddr_to_nid(start);
+
+	/* Default to node0 as not all callers are prepared for this to fail */
+	if (nid == NUMA_NO_NODE)
+		return 0;
+
+	return nid;
+}
+EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
+
 /*
  * We need to be able to catch inadvertent references to memstart_addr
  * that occur (potentially in generic code) before arm64_memblock_init()

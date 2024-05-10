@@ -26,4 +26,8 @@
 #define SECTION_SIZE_BITS 27
 #endif /* CONFIG_ARM64_64K_PAGES */
 
+#ifndef __ASSEMBLY__
+extern int memory_add_physaddr_to_nid(u64 addr);
+#define memory_add_physaddr_to_nid memory_add_physaddr_to_nid
+#endif /* __ASSEMBLY__ */
 #endif
